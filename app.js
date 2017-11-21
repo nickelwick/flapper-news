@@ -1,17 +1,48 @@
 var app = angular.module('flapperNews', []);
+angular.module('flapperNews', ['ui.router'])
+
+app.factory('posts', [function () {
+    
+    var o = {
+        posts: []
+    };    
+
+    return o;
+}])
+
+// Create the config block for our app and configure a home state using $stateProvider and $urlRouterProvider.
+app.config([
+
+    '$stateProvider',
+    '$urlRouterProvider',
+    function($stateProvider, $urlRouterProvider) {
+    
+        $stateProvider
+            .state('home',{
+                url: '/home',
+                templateUrl: '/home.html',
+                controller: 'MainCtrl'
+            })
+            .state('posts',{
+                url: '/posts/{id}',
+                templateUrl: '/posts.html',
+                controller: 'PostsCtrl'
+            });
+
+        $urlRouterProvider.otherwise('home');
+
+}]);
+
+
+// Controllers
 
 app.controller('MainCtrl', [
 '$scope',
-function($scope){
-    $scope.test = 'Hello world!';
+'posts',
+function($scope, posts){
 
-    $scope.posts = [
-    	{title: 'Post 1', upvotes: 1},
-    	{title: 'Post 2', upvotes: 321},
-    	{title: 'Post 3', upvotes: 3},
-    	{title: 'Post 4', upvotes: 5123},
-    	{title: 'Post 5', upvotes: 52},
-    ];
+    $scope.posts = posts.posts;
+    $scope.test = 'Hello world!';
 
     $scope.addPost = function(){
 
@@ -26,6 +57,18 @@ function($scope){
         });
     	$scope.title = '';
         $scope.link = '';
+
+
+        $scope.posts.push({
+            title: $scope.title,
+            link: $scope.link,
+            upvotes: 0,
+            comments: [
+                {author: 'Joe', body: 'Cool post!', upvotes: 0},
+                {author: 'Bob', body: 'Great idea but everything is wrong!', upvotes: 0}
+            ]
+        });
+
     }
 
 
@@ -34,4 +77,13 @@ function($scope){
         post.upvotes += 1;  
     }
 
+}]);
+
+
+app.controller('PostsCtrl', [
+    '$scope',
+    '$stateParams',
+    'posts',
+    function ($scope, $stateParams, posts) {
+        
 }]);
